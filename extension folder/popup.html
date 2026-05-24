@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SessionWatch</title>
+
+    <link rel="stylesheet" href="popup.css">
+
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+
+            <div class="logo">
+                🛡️
+            </div>
+
+            <div>
+                <h1>SessionWatch</h1>
+                <p>Live Browser Tracker</p>
+            </div>
+
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card">
+
+            <div class="status-top">
+
+                <span class="status-dot"></span>
+
+                <span class="status-text">
+                    Tracking Active
+                </span>
+
+            </div>
+
+            <div class="status-info">
+
+                Monitoring browser activity...
+
+            </div>
+
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+
+            <div class="card">
+
+                <h3>🔄</h3>
+
+                <p>Tab Switches</p>
+
+                <h2 id="tabSwitches">0</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>🖱️</h3>
+
+                <p>Total Clicks</p>
+
+                <h2 id="clickCount">0</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>💤</h3>
+
+                <p>Inactive</p>
+
+                <h2 id="inactiveTime">0m</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>🌐</h3>
+
+                <p>Current Tab</p>
+
+                <h2 id="currentTab">—</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Last Activity -->
+        <div class="activity-box">
+
+            <h4>⚡ Last Activity</h4>
+
+            <div id="lastActivity">
+
+                Waiting for activity...
+
+            </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-group">
+
+            <button id="openDashboard">
+                Open Dashboard
+            </button>
+
+            <button id="resetBtn">
+                Reset
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="popup.js"></script>
+
+</body>
+</html>

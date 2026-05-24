@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Session Activity Monitoring System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="layout-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-box">🛡️</div>
+                <h2>SessionWatch</h2>
+            </div>
+            <ul class="menu">
+                <li class="active"><a href="#" onclick="showView('homeView'); return false;">🏠 Home</a></li>
+                <li><a href="#" onclick="showView('browserView'); return false;">🌐 Browser Activity</a></li>
+                <li><a href="#" onclick="showView('tabsView'); return false;">🔄 Tab Switched</a></li>
+                <li><a href="#" onclick="showView('inactiveView'); return false;">💤 Inactivity</a></li>
+                <li><a href="#settings">⚙️ Settings</a></li>
+            </ul>
+        </aside>
+
+        <div class="page-shell">
+            <div id="homeView" class="view-panel">
+                <section class="hero-section card hide-if-livepage">
+                    <div class="hero-left">
+                        <div class="hero-badge">Welcome!</div>
+                        <h1>Welcome! <span>👋</span></h1>
+                        <p>Start a new session to monitor your browser and track your activity in real-time.</p>
+                        <div class="hero-actions">
+                            <button id="startSessionBtn" class="primary-btn">Start New Session</button>
+                            <button id="viewDashboardBtn" class="secondary-btn">View Dashboard</button>
+                        </div>
+                    </div>
+                    <div class="hero-right">
+                        <div class="visual-card">
+                            <div class="visual-top">
+                                <div class="visual-label">Activity Overview</div>
+                                <span class="status-pill active">Active</span>
+                            </div>
+                            <div class="visual-chart"></div>
+                            <div class="visual-footer">Live session monitoring</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="home-grid hide-if-livepage">
+                    <div class="card status-card">
+                        <div class="section-title">Current Session</div>
+                        <div class="session-info">
+                            <div class="session-field">
+                                <span>Session ID</span>
+                                <strong>#SESS-001</strong>
+                            </div>
+                            <div class="session-field">
+                                <span>Session Time</span>
+                                <strong id="sessionTimer">00:24:36</strong>
+                            </div>
+                        </div>
+                        <button id="endSessionBtn" class="primary-btn danger">End Session</button>
+                    </div>
+
+                    <div class="card live-card">
+                        <div class="section-title">Live Activity</div>
+                        <ul class="activity-list">
+                            <li><span class="activity-icon">🔄</span><span>Tab switched</span><span>10:40:21 AM</span></li>
+                            <li><span class="activity-icon">🙈</span><span>Window lost focus</span><span>10:39:10 AM</span></li>
+                            <li><span class="activity-icon">👀</span><span>Window gained focus</span><span>10:38:45 AM</span></li>
+                            <li><span class="activity-icon">🖥️</span><span>Fullscreen entered</span><span>10:35:30 AM</span></li>
+                            <li><span class="activity-icon">🌙</span><span>Tab hidden</span><span>10:34:12 AM</span></li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="info-section card live-graph-section hide-if-livepage">
+                    <div class="live-graph-header-row">
+                        <div class="section-title">Live Graph</div>
+                        <button id="openGraphPageBtn" class="secondary-btn" onclick="openLiveGraphPage()">Open Live Graph Page</button>
+                    </div>
+                    <div class="live-graph-tabs" role="tablist" aria-label="Live graph views">
+                        <button class="tab-btn active" type="button" data-chart="activity">Activity Graph</button>
+                        <button class="tab-btn" type="button" data-chart="session">Session Usage Graph</button>
+                        <button class="tab-btn" type="button" data-chart="traffic">Website Traffic Graph</button>
+                        <button class="tab-btn" type="button" data-chart="hourly">Hourly Activity Chart</button>
+                    </div>
+                    <div class="live-graph-overview">
+                        <div class="live-graph-header">
+                            <div>
+                                <span class="graph-title" id="graphTitle">Activity Graph</span>
+                                <p class="graph-description" id="graphDescription">Live activity levels across the current browser session.</p>
+                            </div>
+                            <div class="live-graph-metrics">
+                                <div class="metric">
+                                    <span>Current Load</span>
+                                    <strong id="currentLoad">0%</strong>
+                                </div>
+                                <div class="metric">
+                                    <span>Events/sec</span>
+                                    <strong id="eventsPerSecond">0</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="live-graph-chart" aria-label="Live browser activity graph">
+                            <div class="graph-bars">
+                                <div class="graph-bar" style="--h: 36%;"></div>
+                                <div class="graph-bar" style="--h: 48%;"></div>
+                                <div class="graph-bar" style="--h: 62%;"></div>
+                                <div class="graph-bar" style="--h: 54%;"></div>
+                                <div class="graph-bar" style="--h: 72%;"></div>
+                                <div class="graph-bar" style="--h: 44%;"></div>
+                                <div class="graph-bar" style="--h: 58%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="graph-footer">Real-time browser activity levels updated every second.</div>
+                </section>
+
+                <section id="liveGraphPage" class="live-graph-page-full card hidden">
+                    <div class="detail-page-top">
+                        <div>
+                            <h3>Live Monitoring Dashboard</h3>
+                            <p>Realtime charts only: Click activity, session usage, website traffic, and hourly activity.</p>
+                        </div>
+                        <button id="closeGraphPageBtn" class="secondary-btn">Close</button>
+                    </div>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <span>Active Users</span>
+                            <strong>24</strong>
+                            <small>+12% vs last 1 hour</small>
+                        </div>
+                        <div class="summary-card">
+                            <span>Total Clicks</span>
+                            <strong>8,542</strong>
+                            <small>+18.7% vs last 1 hour</small>
+                        </div>
+                        <div class="summary-card">
+                            <span>Active Sessions</span>
+                            <strong>32</strong>
+                            <small>+8.3% vs last 1 hour</small>
+                        </div>
+                        <div class="summary-card">
+                            <span>Avg. Session Time</span>
+                            <strong>18m 42s</strong>
+                            <small>+5.6% vs last 1 hour</small>
+                        </div>
+                    </div>
+                    <div class="detail-graph-grid">
+                        <div class="graph-card" data-chart="click">
+                            <div class="graph-card-header">
+                                <span>Click activity graph</span>
+                                <span class="live-pill">Live</span>
+                            </div>
+                            <div class="graph-placeholder">Live chart will display here</div>
+                        </div>
+                        <div class="graph-card" data-chart="session">
+                            <div class="graph-card-header">
+                                <span>Session usage graph</span>
+                                <span class="live-pill">Live</span>
+                            </div>
+                            <div class="graph-placeholder">Live chart will display here</div>
+                        </div>
+                        <div class="graph-card" data-chart="traffic">
+                            <div class="graph-card-header">
+                                <span>Website traffic graph</span>
+                                <span class="live-pill">Live</span>
+                            </div>
+                            <div class="graph-placeholder">Live chart will display here</div>
+                        </div>
+                        <div class="graph-card" data-chart="hourly">
+                            <div class="graph-card-header">
+                                <span>Hourly activity chart</span>
+                                <span class="live-pill">Live</span>
+                            </div>
+                            <div class="graph-placeholder">Live chart will display here</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="recent-sessions card sessions-table hide-if-livepage">
+                    <div class="table-header">
+                        <h2>Recent Sessions</h2>
+                        <button class="secondary-btn">View All</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Session ID</th>
+                                    <th>Start Time</th>
+                                    <th>Duration</th>
+                                    <th>Events</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#SESS-001</td>
+                                    <td>May 24, 2025 10:15 AM</td>
+                                    <td>1h 24m 10s</td>
+                                    <td>45</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#SESS-002</td>
+                                    <td>May 23, 2025 03:40 PM</td>
+                                    <td>45m 22s</td>
+                                    <td>23</td>
+                                    <td><span class="status-badge completed">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#SESS-003</td>
+                                    <td>May 22, 2025 11:05 AM</td>
+                                    <td>2h 10m 05s</td>
+                                    <td>67</td>
+                                    <td><span class="status-badge completed">Completed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <section id="browserView" class="view-panel hidden">
+                <div class="detail-header">
+                    <button class="secondary-btn" onclick="showView('homeView')">? Back to Home</button>
+                    <h2>Browser Activity</h2>
+                </div>
+                <iframe src="browser-activity.html" class="app-frame" title="Browser Activity"></iframe>
+            </section>
+
+            <section id="tabsView" class="view-panel hidden">
+                <div class="detail-header">
+                    <button class="secondary-btn" onclick="showView('homeView')">? Back to Home</button>
+                    <h2>Tab Switched</h2>
+                </div>
+                <iframe src="tab-switched.html" class="app-frame" title="Tab Switched"></iframe>
+            </section>
+
+            <section id="inactiveView" class="view-panel hidden">
+                <div class="detail-header">
+                    <button class="secondary-btn" onclick="showView('homeView')">? Back to Home</button>
+                    <h2>Inactivity</h2>
+                </div>
+                <iframe src="inactivity.html" class="app-frame" title="Inactivity"></iframe>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const timerEl = document.getElementById('sessionTimer');
+        let elapsedSeconds = 24 * 60 + 36;
+
+        function formatDuration(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return [hrs, mins, secs]
+                .map(num => String(num).padStart(2, '0'))
+                .join(':');
+        }
+
+        setInterval(() => {
+            elapsedSeconds += 1;
+            if (timerEl) timerEl.textContent = formatDuration(elapsedSeconds);
+        }, 1000);
+
+        const currentLoadEl = document.getElementById('currentLoad');
+        const eventsPerSecondEl = document.getElementById('eventsPerSecond');
+        const graphTitleEl = document.getElementById('graphTitle');
+        const graphDescriptionEl = document.getElementById('graphDescription');
+        const graphPageTitleEl = document.getElementById('pageTitle');
+        const graphPageTextEl = document.getElementById('pageText');
+        const graphPageItemsEl = document.getElementById('pageItems');
+        const graphPageEl = document.getElementById('graphPage');
+        const liveGraphPageEl = document.getElementById('liveGraphPage');
+        const openGraphPageBtn = document.getElementById('openGraphPageBtn');
+        const closeGraphPageBtn = document.getElementById('closeGraphPageBtn');
+        const hideIfLivePageEls = Array.from(document.querySelectorAll('.hide-if-livepage'));
+        const graphBars = Array.from(document.querySelectorAll('.graph-bar'));
+        const liveGraphCards = Array.from(document.querySelectorAll('#liveGraphPage .graph-card'));
+        const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+
+        const chartPages = {
+            activity: {
+                title: 'Real-time activity stream',
+                description: 'Live activity levels across the current browser session.',
+                text: 'This view shows your most recent browser behavior with live updates every second.',
+                list: [
+                    'Current graph view: Activity Graph',
+                    'Shows live tab switching and focus events',
+                    'Updates every 1.5 seconds with sample data',
+                ],
+            },
+            session: {
+                title: 'Session usage summary',
+                description: 'Monitor current session load and usage trends.',
+                text: 'Session usage graph updates in real time to reflect active browsing and idle periods.',
+                list: [
+                    'Session duration trends and resource load',
+                    'Tracks active versus idle time',
+                    'Helps identify high-activity periods in the browser',
+                ],
+            },
+            traffic: {
+                title: 'Website traffic flow',
+                description: 'Track traffic intensity across visited sites.',
+                text: 'Website traffic graph shows a live snapshot of page views and interactions.',
+                list: [
+                    'Live website visit and navigation traffic',
+                    'Shows incoming and outgoing browser activity',
+                    'Ideal for identifying heavy traffic pages',
+                ],
+            },
+            hourly: {
+                title: 'Hourly activity chart',
+                description: 'See activity spikes hour by hour.',
+                text: 'Hourly charts refresh constantly to display the latest browser usage patterns.',
+                list: [
+                    'Hourly breakdown of activity intensity',
+                    'Highlights peak browsing hours',
+                    'Perfect for understanding daily session flow',
+                ],
+            },
+        };
+
+        let activeChart = 'activity';
+
+        const liveChartState = {
+            click: [40, 55, 60, 52, 68, 72, 65],
+            session: [20, 28, 34, 40, 38, 45, 50],
+            traffic: [30, 42, 50, 60, 55, 62, 70],
+            hourly: [12, 18, 24, 30, 28, 35, 42],
+        };
+
+        const liveChartMeta = {
+            click: { unit: 'Clicks', prefix: '', label: 'Click activity graph' },
+            session: { unit: 'Sessions', prefix: '', label: 'Session usage graph' },
+            traffic: { unit: 'Visits', prefix: '', label: 'Website traffic graph' },
+            hourly: { unit: 'Events', prefix: '', label: 'Hourly activity chart' },
+        };
+
+        function renderLineChart(state) {
+            const points = state.map((value, index) => `${index / (state.length - 1) * 100},${100 - value}`).join(' ');
+            const pointDots = state.map((value, index) => {
+                const x = index / (state.length - 1) * 100;
+                const y = 100 - value;
+                return `<circle cx="${x}" cy="${y}" r="1.8" class="chart-dot" />`;
+            }).join('');
+
+            return `
+                <svg viewBox="0 0 100 100" class="live-chart-svg" aria-hidden="true">
+                    <g class="chart-grid">
+                        <line x1="0" y1="18" x2="100" y2="18" />
+                        <line x1="0" y1="38" x2="100" y2="38" />
+                        <line x1="0" y1="58" x2="100" y2="58" />
+                        <line x1="0" y1="78" x2="100" y2="78" />
+                    </g>
+                    <path d="M0,100 L${points} L100,100 Z" class="chart-fill" />
+                    <polyline points="${points}"
+                        fill="none"
+                        stroke="#60a5fa"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="chart-line"
+                    />
+                    ${pointDots}
+                </svg>
+            `;
+        }
+
+        function renderCircleChart(percent, label) {
+            const pct = Math.max(0, Math.min(100, Number(percent) || 0));
+            const deg = pct * 3.6; // convert percent to degrees (0-360)
+            const gradient = `conic-gradient(#2563eb 0deg ${deg}deg, rgba(148,163,184,0.18) ${deg}deg 360deg)`;
+            const displayValue = `${Math.round(pct)}%`;
+            return `
+                <div class="live-circle-chart">
+                    <div class="donut" style="background: ${gradient};" aria-hidden="true">
+                        <div class="donut-hole">
+                            <div class="circle-caption">
+                                <strong>${displayValue}</strong>
+                                <span>${label}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateLiveGraphPage() {
+            liveGraphCards.forEach(card => {
+                const chartKey = card.dataset.chart;
+                const state = liveChartState[chartKey] || [20, 30, 40, 30, 45, 50, 55];
+                const next = Math.min(100, Math.max(10, state[state.length - 1] + Math.round((Math.random() - 0.5) * 18)));
+                state.push(next);
+                if (state.length > 10) state.shift();
+                liveChartState[chartKey] = state;
+
+                const meta = liveChartMeta[chartKey] || { unit: 'Value', prefix: '', label: chartKey };
+                const latestValue = state[state.length - 1];
+                const title = `${latestValue} ${meta.unit}`;
+                const chartHtml = chartKey === 'traffic' || chartKey === 'hourly'
+                    ? renderCircleChart(latestValue, meta.unit)
+                    : renderLineChart(state);
+                card.querySelector('.graph-placeholder').innerHTML = `
+                    <div class="live-chart-top">
+                        <strong>${title}</strong>
+                        <span class="live-chart-status">Live</span>
+                    </div>
+                    ${chartHtml}
+                `;
+            });
+        }
+
+        function setActiveChart(chartKey) {
+            activeChart = chartKey;
+            tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.chart === chartKey));
+            const page = chartPages[chartKey];
+            if (!page) return;
+
+            if (graphTitleEl) graphTitleEl.textContent = `${btnLabel(chartKey)} Graph`;
+            if (graphDescriptionEl) graphDescriptionEl.textContent = page.description;
+            if (graphPageTitleEl) graphPageTitleEl.textContent = page.title;
+            if (graphPageTextEl) graphPageTextEl.textContent = page.text;
+            if (graphPageItemsEl) {
+                graphPageItemsEl.innerHTML = page.list.map(item => `<li>${item}</li>`).join('');
+            }
+            if (graphPageEl) {
+                graphPageEl.classList.add('visible');
+            }
+        }
+
+        function btnLabel(key) {
+            switch (key) {
+                case 'activity': return 'Activity';
+                case 'session': return 'Session Usage';
+                case 'traffic': return 'Website Traffic';
+                case 'hourly': return 'Hourly Activity';
+                default: return 'Activity';
+            }
+        }
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                setActiveChart(button.dataset.chart);
+                updateLiveGraph();
+            });
+        });
+
+        function openLiveGraphPage() {
+            if (hideIfLivePageEls.length) {
+                hideIfLivePageEls.forEach(el => el.classList.add('hidden'));
+            }
+            if (liveGraphPageEl) {
+                liveGraphPageEl.classList.remove('hidden');
+                liveGraphPageEl.classList.add('visible');
+                liveGraphPageEl.style.display = 'block';
+                liveGraphPageEl.style.opacity = '1';
+                updateLiveGraphPage();
+            }
+        }
+
+        function closeLiveGraphPage() {
+            if (hideIfLivePageEls.length) {
+                hideIfLivePageEls.forEach(el => el.classList.remove('hidden'));
+            }
+            if (liveGraphPageEl) {
+                liveGraphPageEl.classList.add('hidden');
+                liveGraphPageEl.classList.remove('visible');
+                liveGraphPageEl.style.display = 'none';
+                liveGraphPageEl.style.opacity = '0';
+            }
+        }
+
+        if (openGraphPageBtn) {
+            openGraphPageBtn.addEventListener('click', openLiveGraphPage);
+        }
+
+        if (closeGraphPageBtn) {
+            closeGraphPageBtn.addEventListener('click', closeLiveGraphPage);
+        }
+
+        function updateLiveGraph() {
+            if (!graphBars.length) return;
+
+            const intensityMap = {
+                activity: [25, 40, 55, 70, 60, 45, 50],
+                session: [30, 36, 48, 58, 64, 72, 68],
+                traffic: [20, 34, 46, 62, 78, 52, 56],
+                hourly: [18, 28, 40, 54, 66, 58, 46],
+            };
+
+            const base = intensityMap[activeChart] || intensityMap.activity;
+            const values = base.map(value => Math.min(100, Math.max(12, value + Math.floor(Math.random() * 18) - 8)));
+            values.forEach((value, index) => {
+                graphBars[index].style.setProperty('--h', `${value}%`);
+            });
+
+            const currentLoad = values[values.length - 1];
+            if (currentLoadEl) currentLoadEl.textContent = `${currentLoad}%`;
+            if (eventsPerSecondEl) eventsPerSecondEl.textContent = `${Math.max(1, Math.round(currentLoad / 10))}`;
+        }
+
+        setActiveChart(activeChart);
+        updateLiveGraph();
+        updateLiveGraphPage();
+        setInterval(updateLiveGraph, 1500);
+        setInterval(updateLiveGraphPage, 1500);
+
+        // Forward inactivity events to the Inactivity iframe so it updates live.
+        // We'll only send deltas (new events) to minimize payload and avoid re-rendering.
+        const inactivityIframe = document.querySelector('iframe[title="Inactivity"]');
+        let lastInactivityTs = null;
+        async function forwardInactivityToIframe() {
+            if (!inactivityIframe || !inactivityIframe.contentWindow) return;
+            try {
+                const res = await fetch('/api/events', { cache: 'no-store' });
+                const events = await res.json();
+                const inactiveEvents = Array.isArray(events) ? events.filter(e => e.type === 'INACTIVE') : [];
+                if (!inactiveEvents.length) return;
+
+                // sort ascending by timestamp
+                inactiveEvents.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                // find new events after lastInactivityTs
+                const newEvents = lastInactivityTs
+                    ? inactiveEvents.filter(e => new Date(e.timestamp) > new Date(lastInactivityTs))
+                    : inactiveEvents.slice(-1); // on first run, only send the latest
+
+                if (newEvents.length) {
+                    // update last sent timestamp
+                    lastInactivityTs = newEvents[newEvents.length - 1].timestamp;
+                    inactivityIframe.contentWindow.postMessage({ type: 'INACTIVITY_EVENTS_DELTA', events: newEvents }, '*');
+                    console.log('[Dashboard] forwarded inactivity delta', newEvents.length, newEvents.map(e=>e.timestamp));
+                    // show a quick toast to make the update obvious
+                    showToast(`New inactivity event${newEvents.length>1?'s':''}: ${newEvents.length}`);
+
+                    // open and highlight the Inactivity view so the user sees the new events
+                    showView('inactiveView');
+                    // also update menu active state by calling showView (which will update menu)
+                }
+            } catch (err) {
+                // ignore fetch errors; iframe will fallback to its own polling
+            }
+        }
+
+        // ping for new events every second
+        setInterval(forwardInactivityToIframe, 1000);
+
+        // Simple toast helper
+        function showToast(text, timeout = 2500) {
+            try {
+                const t = document.createElement('div');
+                t.textContent = text;
+                Object.assign(t.style, {
+                    position: 'fixed',
+                    right: '20px',
+                    top: '20px',
+                    background: 'rgba(17,24,39,0.95)',
+                    color: '#fff',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    zIndex: 99999,
+                    boxShadow: '0 6px 18px rgba(2,6,23,0.6)',
+                    fontWeight: 700,
+                });
+                document.body.appendChild(t);
+                setTimeout(() => { t.style.transition = 'opacity 300ms'; t.style.opacity = '0'; }, timeout - 300);
+                setTimeout(() => t.remove(), timeout);
+            } catch (e) { /* ignore */ }
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            const target = document.getElementById(viewId);
+            if (target) target.classList.remove('hidden');
+            // update active state on the sidebar menu
+            document.querySelectorAll('.menu li').forEach(li => {
+                const a = li.querySelector('a');
+                if (!a) return;
+                const onclick = a.getAttribute('onclick') || '';
+                li.classList.toggle('active', onclick.indexOf(`'${viewId}'`) !== -1 || onclick.indexOf(`"${viewId}"`) !== -1);
+            });
+        }
+
+        document.getElementById('viewDashboardBtn').addEventListener('click', () => showView('homeView'));
+        document.getElementById('startSessionBtn').addEventListener('click', () => alert('Starting a new session...'));
+        document.getElementById('endSessionBtn').addEventListener('click', () => alert('Ending the current session.'));
+    </script>
+</body>
+</html>

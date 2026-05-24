@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inactivity - SessionWatch</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            color: #f97316;
+        }
+        .detail-container {
+            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background: #ea580c;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .detail-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #f97316;
+        }
+        .stats {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #ffffff;
+            padding: 18px 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            min-height: 120px;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #f97316;
+        }
+        .stat-label {
+            margin-top: 10px;
+            color: #9a3412;
+            font-size: 14px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #f97316;
+        }
+        .card-body {
+            padding: 16px 20px;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .event-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+        .event-card:last-child {
+            border-bottom: none;
+        }
+        .event-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .event-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f97316;
+        }
+        .event-meta {
+            margin: 6px 0 0;
+            color: #9a3412;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .event-label {
+            color: #f97316;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .no-data {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9a3412;
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+        <div class="detail-header">
+            <div>
+                <h1>💤 Inactivity</h1>
+                <p style="margin: 8px 0 0; color: #aaa;">Tracks when the browser becomes inactive and counts inactivity events.</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="inactive-count">0</div>
+                <div class="stat-label">Inactivity Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="last-inactive-time">None</div>
+                <div class="stat-label">Last Inactive</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-time">0s</div>
+                <div class="stat-label">Active Session</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="current-url">loading...</div>
+                <div class="stat-label">Page URL</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Recent Inactivity Events</h2></div>
+            <div class="card-body" id="inactivity-events">
+                <div class="no-data">Loading inactivity events…</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) return `${seconds}s`;
+            const minutes = Math.floor(seconds / 60);
+            const remaining = seconds % 60;
+            return `${minutes}m ${remaining}s`;
+        }
+
+        function normalizeHostname(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        let inactivityTimer;
+        const inactivityThreshold = 60 * 1000;
+        let isInactive = false;
+
+        function resetInactivity() {
+            if (isInactive) {
+                isInactive = false;
+                document.getElementById('current-url').textContent = normalizeHostname(window.location.href);
+            }
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                isInactive = true;
+                pushInactivityEvent();
+            }, inactivityThreshold);
+        }
+
+        async function pushInactivityEvent() {
+            const eventData = {
+                type: 'INACTIVE',
+                url: window.location.href,
+                title: document.title,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await fetch('/api/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+                console.log('Inactivity event pushed', eventData);
+                loadInactivity();
+            } catch (error) {
+                console.error('Error pushing inactivity event:', error);
+            }
+        }
+
+        function bindInactivityListeners() {
+            ['mousemove', 'mousedown', 'touchstart', 'keydown', 'click'].forEach(eventName => {
+                document.addEventListener(eventName, resetInactivity, { passive: true });
+            });
+            resetInactivity();
+        }
+
+        async function loadInactivity() {
+            try {
+                const statsRes = await fetch('/api/stats', { cache: 'no-store' });
+                const stats = await statsRes.json();
+                document.getElementById('inactive-count').textContent = stats.inactivityCount ?? 0;
+                document.getElementById('last-inactive-time').textContent = stats.lastInactive ? new Date(stats.lastInactive.timestamp).toLocaleTimeString() : 'None';
+                document.getElementById('active-time').textContent = stats.lastInactive ? formatDuration(Math.floor((Date.now() - new Date(stats.lastInactive.timestamp).getTime()) / 1000)) : '0s';
+                document.getElementById('current-url').textContent = stats.lastInactive?.url ? normalizeHostname(stats.lastInactive.url) : normalizeHostname(window.location.href);
+            } catch (error) {
+                console.error('Error loading inactivity stats:', error);
+            }
+
+            try {
+                const eventsRes = await fetch('/api/events', { cache: 'no-store' });
+                const events = await eventsRes.json();
+                const inactiveEvents = Array.isArray(events) ? events.filter(e => e.type === 'INACTIVE').reverse().slice(0, 20) : [];
+                const container = document.getElementById('inactivity-events');
+
+                if (inactiveEvents.length === 0) {
+                    container.innerHTML = '<div class="no-data">No inactivity events yet.</div>';
+                    return;
+                }
+
+                let html = '';
+                inactiveEvents.forEach(event => {
+                    const timeLabel = new Date(event.timestamp).toLocaleTimeString();
+                    html += `
+                        <div class="event-card">
+                            <div class="event-details" style="display:flex;align-items:center;gap:12px;">
+                                <img src="${event.favIconUrl || ''}" alt="" style="width:28px;height:28px;border-radius:4px;object-fit:contain;display:${event.favIconUrl ? 'block' : 'none'}" />
+                                <div>
+                                    <p class="event-title">${event.title ? event.title : 'Inactive'}</p>
+                                    <p class="event-meta">${event.url ? normalizeHostname(event.url) : 'unknown'}</p>
+                                </div>
+                            </div>
+                            <div class="event-label">${timeLabel}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading inactivity events:', error);
+                document.getElementById('inactivity-events').innerHTML = '<div class="no-data">Error loading inactivity events.</div>';
+            }
+        }
+
+        bindInactivityListeners();
+        loadInactivity();
+        setInterval(loadInactivity, 1000);
+
+        // Listen for messages from parent (dashboard) to receive near-real-time events
+        window.addEventListener('message', (ev) => {
+            try {
+                const msg = ev.data;
+                if (!msg || (msg.type !== 'INACTIVITY_EVENTS' && msg.type !== 'INACTIVITY_EVENTS_DELTA')) return;
+                const container = document.getElementById('inactivity-events');
+
+                if (msg.type === 'INACTIVITY_EVENTS') {
+                    // full replace (fallback)
+                    const events = Array.isArray(msg.events) ? msg.events.slice().reverse().slice(0, 20) : [];
+                    if (events.length === 0) {
+                        container.innerHTML = '<div class="no-data">No inactivity events yet.</div>';
+                        document.getElementById('inactive-count').textContent = '0';
+                        document.getElementById('last-inactive-time').textContent = 'None';
+                        return;
+                    }
+                    document.getElementById('inactive-count').textContent = events.length;
+                    document.getElementById('last-inactive-time').textContent = new Date(events[0].timestamp).toLocaleTimeString();
+                    document.getElementById('active-time').textContent = events[0].timestamp ? formatDuration(Math.floor((Date.now() - new Date(events[0].timestamp).getTime()) / 1000)) : '0s';
+                    document.getElementById('current-url').textContent = events[0].url ? normalizeHostname(events[0].url) : normalizeHostname(window.location.href);
+
+                    let html = '';
+                    events.forEach(event => {
+                        const timeLabel = new Date(event.timestamp).toLocaleTimeString();
+                        html += `
+                            <div class="event-card">
+                                <div class="event-details">
+                                    <p class="event-title">Inactive</p>
+                                    <p class="event-meta">${event.url ? normalizeHostname(event.url) : 'unknown'}</p>
+                                </div>
+                                <div class="event-label">${timeLabel}</div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else if (msg.type === 'INACTIVITY_EVENTS_DELTA') {
+                    // append/prepend new events to the top of the list
+                    const newEvents = Array.isArray(msg.events) ? msg.events.slice() : [];
+                    if (!newEvents.length) return;
+
+                    // update counters and last-inactive
+                    const currentCount = parseInt(document.getElementById('inactive-count').textContent || '0', 10) || 0;
+                    document.getElementById('inactive-count').textContent = (currentCount + newEvents.length).toString();
+                    document.getElementById('last-inactive-time').textContent = new Date(newEvents[newEvents.length - 1].timestamp).toLocaleTimeString();
+                    document.getElementById('active-time').textContent = newEvents[newEvents.length - 1].timestamp ? formatDuration(Math.floor((Date.now() - new Date(newEvents[newEvents.length - 1].timestamp).getTime()) / 1000)) : document.getElementById('active-time').textContent;
+                    document.getElementById('current-url').textContent = newEvents[newEvents.length - 1].url ? normalizeHostname(newEvents[newEvents.length - 1].url) : document.getElementById('current-url').textContent;
+
+                    // render each new event (newEvents are oldest->newest)
+                    newEvents.forEach(event => {
+                        const timeLabel = new Date(event.timestamp).toLocaleTimeString();
+                        const piece = `
+                            <div class="event-card">
+                                <div class="event-details" style="display:flex;align-items:center;gap:12px;">
+                                    <img src="${event.favIconUrl || ''}" alt="" style="width:28px;height:28px;border-radius:4px;object-fit:contain;display:${event.favIconUrl ? 'block' : 'none'}" />
+                                    <div>
+                                        <p class="event-title">${event.title ? event.title : 'Inactive'}</p>
+                                        <p class="event-meta">${event.url ? normalizeHostname(event.url) : 'unknown'}</p>
+                                    </div>
+                                </div>
+                                <div class="event-label">${timeLabel}</div>
+                            </div>
+                        `;
+                        // prepend so newest appear at the top
+                        container.insertAdjacentHTML('afterbegin', piece);
+                    });
+
+                        // show a small toast in the iframe to make live updates visible
+                        try {
+                            const toast = document.createElement('div');
+                            toast.textContent = `New inactivity event${newEvents.length>1?'s':''}: ${newEvents.length}`;
+                            Object.assign(toast.style, {
+                                position: 'fixed',
+                                right: '16px',
+                                top: '16px',
+                                background: '#111827',
+                                color: '#fff',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                zIndex: 9999,
+                                fontWeight: 700
+                            });
+                            document.body.appendChild(toast);
+                            setTimeout(() => { toast.style.transition = 'opacity 300ms'; toast.style.opacity = '0'; }, 1800);
+                            setTimeout(() => toast.remove(), 2100);
+                        } catch (e) { /* ignore */ }
+
+                    // trim to 20 items
+                    const cards = container.querySelectorAll('.event-card');
+                    for (let i = cards.length - 1; i >= 20; i--) {
+                        cards[i].remove();
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to handle parent message', e);
+            }
+        }, false);
+    </script>
+</body>
+</html>

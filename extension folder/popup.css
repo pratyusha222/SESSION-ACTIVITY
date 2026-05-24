@@ -1,0 +1,185 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    width:360px;
+    background:#0f172a;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+
+.container{
+    padding:20px;
+}
+
+/* HEADER */
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.logo{
+    width:55px;
+    height:55px;
+    border-radius:15px;
+    background:linear-gradient(135deg,#3b82f6,#06b6d4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+}
+
+.header h1{
+    font-size:22px;
+}
+
+.header p{
+    color:#94a3b8;
+    font-size:13px;
+    margin-top:3px;
+}
+
+/* STATUS CARD */
+
+.status-card{
+    background:#111827;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:20px;
+    border:1px solid #1e293b;
+}
+
+.status-top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.status-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#22c55e;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+    0%{
+        box-shadow:0 0 0 0 rgba(34,197,94,0.7);
+    }
+
+    70%{
+        box-shadow:0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100%{
+        box-shadow:0 0 0 0 rgba(34,197,94,0);
+    }
+
+}
+
+.status-text{
+    font-weight:bold;
+    color:#22c55e;
+}
+
+.status-info{
+    color:#94a3b8;
+    font-size:13px;
+}
+
+/* STATS */
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#111827;
+    padding:18px;
+    border-radius:15px;
+    border:1px solid #1e293b;
+    text-align:center;
+}
+
+.card h3{
+    font-size:24px;
+    margin-bottom:10px;
+}
+
+.card p{
+    color:#94a3b8;
+    font-size:12px;
+    margin-bottom:10px;
+}
+
+.card h2{
+    font-size:26px;
+    color:#60a5fa;
+}
+
+/* ACTIVITY */
+
+.activity-box{
+    background:#111827;
+    padding:16px;
+    border-radius:15px;
+    border:1px solid #1e293b;
+    margin-bottom:20px;
+}
+
+.activity-box h4{
+    margin-bottom:10px;
+}
+
+#lastActivity{
+    color:#cbd5e1;
+    font-size:13px;
+}
+
+/* BUTTONS */
+
+.button-group{
+    display:flex;
+    gap:10px;
+}
+
+button{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+#openDashboard{
+    background:#3b82f6;
+    color:white;
+}
+
+#openDashboard:hover{
+    background:#2563eb;
+}
+
+#resetBtn{
+    background:#ef4444;
+    color:white;
+}
+
+#resetBtn:hover{
+    background:#dc2626;
+}

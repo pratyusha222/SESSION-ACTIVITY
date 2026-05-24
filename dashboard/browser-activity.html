@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Browser Activity - SessionWatch</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            color: #f97316;
+        }
+        .detail-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background: #ea580c;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .detail-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #f97316;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #ffffff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 160px;
+            border: 1px solid #e5e7eb;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f97316;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #f97316;
+            margin-top: 6px;
+        }
+        .activity-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #f97316;
+        }
+        .card-body {
+            padding: 16px 20px;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .tab-card,
+        .event-card {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+        .tab-card:last-child,
+        .event-card:last-child {
+            border-bottom: none;
+        }
+        .tab-icon,
+        .event-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 18px;
+            color: #f97316;
+        }
+        .tab-icon img,
+        .event-icon img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+        .tab-details,
+        .event-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .tab-title,
+        .event-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f97316;
+        }
+        .tab-host,
+        .event-meta {
+            margin: 4px 0 0;
+            color: #9a3412;
+            font-size: 12px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .event-label {
+            color: #f97316;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .no-data {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9a3412;
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+        <div class="detail-header">
+            <div>
+                <h1>🌐 Browser Activity</h1>
+                <p style="margin: 8px 0 0; color: #aaa;">Live tab and switch tracking from your browser extension.</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="live-tab-count">0</div>
+                <div class="stat-label">Open Tabs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-tab-count">0</div>
+                <div class="stat-label">Active Tab</div>
+                <div class="stat-label" id="active-tab-name" style="margin-top:8px; font-size:12px;">None</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="page-visit-count">0</div>
+                <div class="stat-label">Live Page Visits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="click-count">0</div>
+                <div class="stat-label">Click Count</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inactive-count">0</div>
+                <div class="stat-label">Inactivity</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-time">0s</div>
+                <div class="stat-label">Active Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="recent-switch-count">0</div>
+                <div class="stat-label">Recent Events</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="width:100%; margin-bottom: 20px;">
+            <div class="stat-label">Current URL</div>
+            <div class="stat-number" id="current-url" style="font-size: 16px; color: #f97316; word-break: break-all;">Loading…</div>
+        </div>
+
+        <div class="activity-grid">
+            <div class="card">
+                <div class="card-header"><h2>Live Open Tabs</h2></div>
+                <div class="card-body" id="browser-tabs">
+                    <div class="no-data">Loading open tabs…</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h2>Recent Browser Events</h2></div>
+                <div class="card-body" id="browser-events">
+                    <div class="no-data">Loading events…</div>
+                </div>
+                <div style="padding: 10px 20px; font-size: 12px; color: #9a3412;">Debug: <span id="debug-info">loading</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        let localDashboardClicks = 0;
+
+        function normalizeHostname(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        function updateDashboardClickDisplay() {
+            const current = parseInt(document.getElementById('click-count').textContent, 10) || 0;
+            document.getElementById('click-count').textContent = Math.max(current, localDashboardClicks);
+        }
+
+        async function recordDashboardClick(target) {
+            localDashboardClicks += 1;
+            updateDashboardClickDisplay();
+
+            const data = {
+                type: "CLICK",
+                url: window.location.href,
+                title: document.title,
+                tag: target?.tagName || 'UNKNOWN',
+                id: target?.id || '',
+                className: target?.className || '',
+                text: target?.innerText?.slice(0, 50) || ''
+            };
+
+            try {
+                await fetch('/api/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error('Dashboard click event error:', error);
+            }
+        }
+
+        function setupDashboardClickTracking() {
+            document.addEventListener('click', (event) => {
+                if (window.location.hostname === 'localhost' && window.location.port === '5180') {
+                    recordDashboardClick(event.target);
+                }
+            });
+        }
+
+        function getFallbackIcon(title, url) {
+            const normalized = `${title || ''} ${url || ''}`.toLowerCase();
+            if (normalized.includes('whatsapp')) return '🟢';
+            if (normalized.includes('youtube')) return '▶️';
+            if (normalized.includes('github')) return '🐙';
+            if (normalized.includes('google')) return '🔎';
+            if (normalized.includes('notion')) return '📝';
+            if (normalized.includes('gmail') || normalized.includes('mail')) return '✉️';
+            if (normalized.includes('twitter')) return '🐦';
+            if (normalized.includes('telegram')) return '✈️';
+            return '🌐';
+        }
+
+        function renderIcon(favicon, title, url) {
+            if (favicon) {
+                return `<img src="${favicon}" alt="icon" onerror="this.style.display='none'">`;
+            }
+            return getFallbackIcon(title, url);
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) return `${seconds}s`;
+            const minutes = Math.floor(seconds / 60);
+            const remaining = seconds % 60;
+            return `${minutes}m ${remaining}s`;
+        }
+
+        async function loadBrowserTabs() {
+            const container = document.getElementById('browser-tabs');
+            try {
+                const response = await fetch('/api/tabs', { cache: 'no-store' });
+                const tabs = await response.json();
+
+                if (!Array.isArray(tabs) || tabs.length === 0) {
+                    const eventResponse = await fetch('/api/events', { cache: 'no-store' });
+                    const events = await eventResponse.json();
+                    const pageEvents = Array.isArray(events) ? events.filter(e => e.type === 'TAB_SWITCH' || e.type === 'URL_CHANGE') : [];
+                    const lastPageEvent = pageEvents.length ? pageEvents[pageEvents.length - 1] : null;
+
+                    if (lastPageEvent) {
+                        document.getElementById('live-tab-count').textContent = '1';
+                        document.getElementById('active-tab-count').textContent = '1';
+                        document.getElementById('active-tab-name').textContent = lastPageEvent.title || 'Active tab';
+                        document.getElementById('current-url').textContent = lastPageEvent.url || 'unknown';
+                        container.innerHTML = `
+                            <div class="tab-card">
+                                <div class="tab-icon">${renderIcon(lastPageEvent.favIconUrl, lastPageEvent.title, lastPageEvent.url)}</div>
+                                <div class="tab-details">
+                                    <p class="tab-title">${lastPageEvent.title || 'Untitled Tab'}</p>
+                                    <p class="tab-host">${normalizeHostname(lastPageEvent.url)}</p>
+                                </div>
+                                <div class="event-label">Active</div>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = '<div class="no-data">No tabs tracked yet.</div>';
+                    document.getElementById('live-tab-count').textContent = '0';
+                    document.getElementById('active-tab-count').textContent = '0';
+                    document.getElementById('active-tab-name').textContent = 'None';
+                    document.getElementById('current-url').textContent = 'unknown';
+                    return;
+                }
+
+                document.getElementById('live-tab-count').textContent = tabs.length;
+                const activeTab = tabs.find(tab => tab.active);
+                document.getElementById('active-tab-count').textContent = activeTab ? 1 : 0;
+                document.getElementById('active-tab-name').textContent = activeTab?.title || 'No active tab';
+                document.getElementById('current-url').textContent = activeTab?.url || 'unknown';
+
+                let html = '';
+                tabs.forEach(tab => {
+                    html += `
+                        <div class="tab-card">
+                            <div class="tab-icon">${renderIcon(tab.favIconUrl, tab.title, tab.url)}</div>
+                            <div class="tab-details">
+                                <p class="tab-title">${tab.title || 'Untitled Tab'}</p>
+                                <p class="tab-host">${normalizeHostname(tab.url)}</p>
+                            </div>
+                            <div class="event-label">${tab.active ? 'Active' : 'Inactive'}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Browser Activity load error:', error);
+                container.innerHTML = '<div class="no-data">Error loading open tabs.</div>';
+            }
+        }
+
+        async function loadBrowserEvents() {
+            const container = document.getElementById('browser-events');
+            try {
+                const response = await fetch('/api/events', { cache: 'no-store' });
+                const events = await response.json();
+                const recent = Array.isArray(events) ? [...events].reverse().slice(0, 20) : [];
+
+                const pageEvents = events.filter(e => e.type === 'TAB_SWITCH' || e.type === 'URL_CHANGE');
+                const clickEvents = events.filter(e => e.type === 'CLICK');
+                const inactiveEvents = events.filter(e => e.type === 'INACTIVE');
+
+                const clickTotalByEvent = clickEvents.reduce((sum, event) => {
+                    if (typeof event.totalClicks === 'number') {
+                        return Math.max(sum, event.totalClicks);
+                    }
+                    return sum + 1;
+                }, 0);
+                const clickCountValue = Math.max(clickTotalByEvent, clickEvents.length);
+                const inactivityCount = inactiveEvents.length;
+                const lastInactive = inactiveEvents[inactiveEvents.length - 1];
+
+                document.getElementById('page-visit-count').textContent = pageEvents.length;
+                document.getElementById('click-count').textContent = clickCountValue;
+                document.getElementById('inactive-count').textContent = inactivityCount;
+                document.getElementById('recent-switch-count').textContent = recent.length;
+                document.getElementById('debug-info').textContent = `events=${events.length}, clicks=${clickEvents.length}, inactive=${inactivityCount}`;
+
+                const activeSessionEvents = events.filter(e => {
+                    if (!['CLICK', 'TAB_SWITCH', 'URL_CHANGE'].includes(e.type)) return false;
+                    return !lastInactive || new Date(e.timestamp) > new Date(lastInactive.timestamp);
+                });
+                const sessionStart = activeSessionEvents.length ? new Date(activeSessionEvents[0].timestamp) : null;
+                const activeSeconds = sessionStart ? Math.floor((Date.now() - sessionStart.getTime()) / 1000) : 0;
+                document.getElementById('active-time').textContent = sessionStart ? formatDuration(activeSeconds) : 'Inactive';
+
+                if (recent.length === 0) {
+                    container.innerHTML = '<div class="no-data">No browser events recorded yet.</div>';
+                    return;
+                }
+
+                let html = '';
+                recent.forEach(event => {
+                    const icon = renderIcon(event.favIconUrl, event.title, event.url);
+                    html += `
+                        <div class="event-card">
+                            <div class="event-icon">${icon}</div>
+                            <div class="event-details">
+                                <p class="event-title">${event.title || 'Untitled Tab'}</p>
+                                <p class="event-meta">${event.type} • ${normalizeHostname(event.url)}</p>
+                            </div>
+                            <div class="event-label">${new Date(event.timestamp).toLocaleTimeString()}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Browser events load error:', error);
+                container.innerHTML = '<div class="no-data">Error loading browser events.</div>';
+            }
+        }
+
+        async function loadBrowserStats() {
+            try {
+                const response = await fetch('/api/stats', { cache: 'no-store' });
+                const stats = await response.json();
+                document.getElementById('click-count').textContent = Math.max(stats.clickCount ?? 0, localDashboardClicks);
+                document.getElementById('page-visit-count').textContent = stats.pageVisits ?? 0;
+                document.getElementById('inactive-count').textContent = stats.inactivityCount ?? 0;
+                document.getElementById('debug-info').textContent = `events=${stats.eventsCount}, clicks=${stats.clickCount}, inactive=${stats.inactivityCount}`;
+            } catch (error) {
+                console.error('Browser stats load error:', error);
+            }
+        }
+
+        function refresh() {
+            loadBrowserTabs();
+            loadBrowserEvents();
+            loadBrowserStats();
+        }
+
+        setupDashboardClickTracking();
+        refresh();
+        setInterval(refresh, 1000);
+    </script>
+</body>
+</html>

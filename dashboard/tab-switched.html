@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tab Switched - SessionWatch</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #ffffff;
+            color: #f97316;
+            font-family: Arial, sans-serif;
+        }
+
+        .detail-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .back-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .back-btn:hover {
+            background: #ea580c;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .detail-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #f97316;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 150px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f97316;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #f97316;
+            margin-top: 5px;
+        }
+        
+        .events-list {
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .event-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            transition: background 0.2s;
+        }
+        
+        .event-item:hover {
+            background: #f8fafc;
+        }
+        
+        .event-icon {
+            font-size: 24px;
+            min-width: 30px;
+            text-align: center;
+            color: #f97316;
+        }
+        
+        .event-details {
+            flex: 1;
+        }
+        
+        .event-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #f97316;
+        }
+        
+        .event-url {
+            color: #f97316;
+            font-size: 12px;
+            margin-bottom: 3px;
+            word-break: break-all;
+        }
+        
+        .event-time {
+            color: #9a3412;
+            font-size: 11px;
+        }
+        
+        .tabs-section {
+            margin-bottom: 20px;
+        }
+
+        .tabs-list {
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .tab-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+
+        .tab-card:last-child {
+            border-bottom: none;
+        }
+
+        .tab-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #f8fafc;
+            flex-shrink: 0;
+            font-size: 18px;
+            color: #f97316;
+        }
+
+        .tab-icon img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+        }
+
+        .tab-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tab-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f97316;
+        }
+
+        .tab-host {
+            margin: 2px 0 0;
+            color: #9a3412;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .no-data {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9a3412;
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body style="background: #ffffff; color: #f97316;">
+    <main class="main-content" style="margin-left: 0; padding-top: 0;">
+        <header class="navbar" style="margin-bottom: 0;">
+            <div>
+                <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+                <h1 style="margin: 0;">⏱️ Tab Switched Events <span class="live-indicator"></span> LIVE</h1>
+            </div>
+        </header>
+
+        <div class="detail-container">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-switches">0</div>
+                    <div class="stat-label">Total Switches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="unique-tabs">0</div>
+                    <div class="stat-label">Unique Tabs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="open-tabs-count">0</div>
+                    <div class="stat-label">Open Tabs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="active-tab-count">0</div>
+                    <div class="stat-label">Active Tab</div>
+                    <div class="stat-label" id="active-tab-name" style="margin-top:8px; font-size:12px;">None</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="click-count">0</div>
+                    <div class="stat-label">Click Count</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="inactive-count">0</div>
+                    <div class="stat-label">Inactivity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="last-switch">-</div>
+                    <div class="stat-label">Last Switch</div>
+                </div>
+            </div>
+
+            <div class="tabs-section">
+                <h2 style="margin-bottom: 15px;">Live Open Tabs</h2>
+                <div class="tabs-list" id="tabs-container">
+                    <div class="no-data">Loading open tabs...</div>
+                </div>
+            </div>
+
+            <div class="events-list" id="events-container">
+                <div class="no-data">Loading tab events...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function safeHostname(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        function getFallbackIcon(title, url) {
+            const normalized = `${title || ''} ${url || ''}`.toLowerCase();
+            if (normalized.includes('whatsapp')) return '🟢';
+            if (normalized.includes('youtube')) return '▶️';
+            if (normalized.includes('github')) return '🐙';
+            if (normalized.includes('google')) return '🔎';
+            if (normalized.includes('notion')) return '📝';
+            if (normalized.includes('gmail') || normalized.includes('mail')) return '✉️';
+            if (normalized.includes('twitter')) return '🐦';
+            if (normalized.includes('telegram')) return '✈️';
+            return '🌐';
+        }
+
+        let localDashboardClicks = 0;
+
+        function renderIcon(favicon, title, url) {
+            if (favicon) {
+                return `<img src="${favicon}" alt="icon" onerror="this.style.display='none'">`;
+            }
+            return getFallbackIcon(title, url);
+        }
+
+        function updateClickDisplay() {
+            const current = parseInt(document.getElementById('click-count').textContent, 10) || 0;
+            document.getElementById('click-count').textContent = Math.max(current, localDashboardClicks);
+        }
+
+        async function recordDashboardClick(target) {
+            localDashboardClicks += 1;
+            updateClickDisplay();
+
+            const data = {
+                type: 'CLICK',
+                url: window.location.href,
+                title: document.title,
+                tag: target?.tagName || 'UNKNOWN',
+                id: target?.id || '',
+                className: target?.className || '',
+                text: target?.innerText?.slice(0, 50) || ''
+            };
+
+            try {
+                await fetch('/api/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error('Dashboard click event error:', error);
+            }
+        }
+
+        function setupDashboardClickTracking() {
+            document.addEventListener('click', (event) => {
+                if (window.location.hostname === 'localhost' && window.location.port === '5180') {
+                    recordDashboardClick(event.target);
+                }
+            });
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/stats', { cache: 'no-store' });
+                const stats = await response.json();
+                document.getElementById('click-count').textContent = Math.max(stats.clickCount ?? 0, localDashboardClicks);
+                document.getElementById('inactive-count').textContent = stats.inactivityCount ?? 0;
+            } catch (error) {
+                console.error('Failed to load dashboard stats:', error);
+            }
+        }
+
+        async function updateTabsData() {
+            try {
+                const response = await fetch('/api/tabs');
+                const tabs = await response.json();
+                const container = document.getElementById('tabs-container');
+
+                if (!Array.isArray(tabs) || tabs.length === 0) {
+                    const eventResponse = await fetch('/api/events');
+                    const events = await eventResponse.json();
+                    const pageEvents = Array.isArray(events) ? events.filter(e => e.type === 'TAB_SWITCH' || e.type === 'URL_CHANGE') : [];
+                    const lastPageEvent = pageEvents.length ? pageEvents[pageEvents.length - 1] : null;
+
+                    if (lastPageEvent) {
+                        container.innerHTML = `
+                            <div class="tab-card">
+                                <div class="tab-icon">${renderIcon(lastPageEvent.favIconUrl, lastPageEvent.title, lastPageEvent.url)}</div>
+                                <div class="tab-details">
+                                    <div class="tab-title">${lastPageEvent.title || 'Untitled Tab'}</div>
+                                    <div class="tab-host">${safeHostname(lastPageEvent.url)}</div>
+                                </div>
+                                <div style="color: #00ff80; font-size: 12px; white-space: nowrap;">Active</div>
+                            </div>
+                        `;
+                        document.getElementById('open-tabs-count').textContent = '1';
+                        document.getElementById('active-tab-count').textContent = '1';
+                        document.getElementById('active-tab-name').textContent = lastPageEvent.title || 'Active tab';
+                        return;
+                    }
+
+                    container.innerHTML = '<div class="no-data">No open tabs yet. Install and enable the extension to start tracking.</div>';
+                    document.getElementById('open-tabs-count').textContent = '0';
+                    document.getElementById('active-tab-count').textContent = '0';
+                    document.getElementById('active-tab-name').textContent = 'None';
+                    return;
+                }
+
+                document.getElementById('open-tabs-count').textContent = tabs.length;
+                const activeTab = tabs.find(tab => tab.active);
+                document.getElementById('active-tab-count').textContent = activeTab ? 1 : 0;
+                document.getElementById('active-tab-name').textContent = activeTab?.title || 'No active tab';
+
+                let html = '';
+                tabs.forEach(tab => {
+                    const hostname = safeHostname(tab.url);
+                    const favicon = tab.favIconUrl || '';
+                    html += `
+                        <div class="tab-card">
+                            <div class="tab-icon">${renderIcon(favicon, tab.title, tab.url)}</div>
+                            <div class="tab-details">
+                                <div class="tab-title">${tab.title || 'Untitled Tab'}</div>
+                                <div class="tab-host">${hostname}</div>
+                            </div>
+                            <div style="color: ${tab.active ? '#00ff80' : '#888'}; font-size: 12px; white-space: nowrap;">${tab.active ? 'Active' : 'Inactive'}</div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching tabs data:', error);
+                document.getElementById('tabs-container').innerHTML = '<div class="no-data">Error loading live tabs.</div>';
+            }
+        }
+
+        async function updateTabSwitchData() {
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                const tabSwitches = events.filter(e => e.type === 'TAB_SWITCH' || e.type === 'URL_CHANGE');
+
+                if (tabSwitches.length === 0) {
+                    document.getElementById('events-container').innerHTML =
+                        '<div class="no-data">No tab switches recorded yet. Start switching tabs to see activity.</div>';
+                    document.getElementById('total-switches').textContent = '0';
+                    document.getElementById('unique-tabs').textContent = '0';
+                    document.getElementById('last-switch').textContent = '-';
+                    return;
+                }
+
+                const uniqueTabs = new Set(tabSwitches.map(e => e.title || e.url)).size;
+                document.getElementById('total-switches').textContent = tabSwitches.length;
+                document.getElementById('unique-tabs').textContent = uniqueTabs;
+
+                const lastEvent = tabSwitches[tabSwitches.length - 1];
+                const lastTime = new Date(lastEvent.timestamp);
+                const now = new Date();
+                const diffSeconds = Math.floor((now - lastTime) / 1000);
+                let timeStr = diffSeconds < 1 ? 'now' : `${diffSeconds}s ago`;
+                document.getElementById('last-switch').textContent = timeStr;
+
+                let html = '';
+                [...tabSwitches].reverse().forEach((event, index) => {
+                    const time = new Date(event.timestamp);
+                    const timeLabel = time.toLocaleTimeString();
+                    const dateLabel = time.toLocaleDateString();
+                    const displayUrl = event.url ? event.url : 'unknown';
+                    const favicon = event.favIconUrl || '';
+                    const iconHtml = renderIcon(favicon, event.title, event.url);
+                    html += `
+                        <div class="event-item">
+                            <div class="event-icon">${iconHtml}</div>
+                            <div class="event-details">
+                                <div class="event-title">${event.title || 'Untitled Tab'}</div>
+                                <div class="event-url">${displayUrl}</div>
+                                <div class="event-time">${timeLabel} • ${dateLabel}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('events-container').innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching tab switch data:', error);
+                document.getElementById('events-container').innerHTML =
+                    '<div class="no-data">Error loading tab events. Make sure the dashboard server is running.</div>';
+            }
+        }
+
+        updateTabsData();
+        updateTabSwitchData();
+        loadDashboardStats();
+        setupDashboardClickTracking();
+
+        setInterval(() => {
+            updateTabsData();
+            updateTabSwitchData();
+            loadDashboardStats();
+        }, 500);
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                updateTabsData();
+                updateTabSwitchData();
+                loadDashboardStats();
+            }
+        });
+    </script>
+</body>
+</html>

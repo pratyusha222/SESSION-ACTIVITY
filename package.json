@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "node dashboard/server/server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "react-router-dom": "^7.15.1",
+    "recharts": "^3.8.1"
+  }
+}
